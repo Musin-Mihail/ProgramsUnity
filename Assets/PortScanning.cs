@@ -229,9 +229,8 @@ public class PortScanning : MonoBehaviour
         {
             s.Connect(IP, _port);
             s.Close();
-            File.Create($"IP\\{_port}_" + IP + ".txt");
+            File.Create($"IP\\" + IP);
             PortCount++;
-            
         }
         catch (Exception)
         {
