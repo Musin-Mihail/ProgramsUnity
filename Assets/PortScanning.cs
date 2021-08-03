@@ -24,6 +24,7 @@ public class PortScanning : MonoBehaviour
     int countThread;
     int PortCount;
     int q2 = 0;
+    public Material _internet;
     void Awake() 
     {
         Directory.CreateDirectory("IP");
@@ -175,6 +176,24 @@ public class PortScanning : MonoBehaviour
                 });
                 _thread.Start();
                 StartCoroutine(stopThread(_thread, 2));
+            }
+            if (IPList.Count % 500 == 0)
+            {
+                while(true)
+                {
+                    System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+                    PingReply pingReply = ping.Send("142.250.186.131");
+                    if (pingReply.Status != IPStatus.Success)
+                    {
+                        _internet.color = Color.red;
+                        yield return new WaitForSeconds(10.0f);
+                    }
+                    else
+                    {
+                        _internet.color = Color.green;
+                        break;
+                    }
+                }
             }
             yield return new WaitForSeconds(0.02f);
         }
