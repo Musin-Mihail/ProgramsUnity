@@ -18,6 +18,7 @@ public class PortScanning : MonoBehaviour
     public Text _numberThreads;
     public Text _checkedPorts;
     public Text _portsFound;
+    public Text _error;
     List<string> IPList = new List<string>();
     List<string> GoodIP = new List<string>();
     List<string> IPRangeList = new List<string>();
@@ -25,6 +26,7 @@ public class PortScanning : MonoBehaviour
     int PortCount;
     int q2 = 0;
     public Material _internet;
+    int _errorCount = 0;
     void Awake() 
     {
         Directory.CreateDirectory("IP");
@@ -179,20 +181,29 @@ public class PortScanning : MonoBehaviour
             }
             if (IPList.Count % 500 == 0)
             {
-                while(true)
+                int test = 0;
+                try
                 {
                     System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
                     PingReply pingReply = ping.Send("142.250.186.131");
                     if (pingReply.Status != IPStatus.Success)
                     {
                         _internet.color = Color.red;
-                        yield return new WaitForSeconds(10.0f);
+                        test = 1;
                     }
                     else
                     {
                         _internet.color = Color.green;
-                        break;
                     }
+                }
+                catch(Exception e)
+                {
+                    _errorCount++;
+                    _error.text = "Количество ошибок: " +_errorCount.ToString() + ". Проверка интернета.\n" + e.ToString();
+                }
+                if(test == 1)
+                {
+                    yield return new WaitForSeconds(10.0f);
                 }
             }
             yield return new WaitForSeconds(0.02f);
@@ -214,12 +225,19 @@ public class PortScanning : MonoBehaviour
     }
     void Ping(string IP)
     {
-        IPList.RemoveAt(0);
-        System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
-        PingReply pingReply = ping.Send(IP);
-        if (pingReply.Status != IPStatus.TimedOut)
+        try
         {
-            GoodIP.Add(IP);
+            IPList.RemoveAt(0);
+            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+            PingReply pingReply = ping.Send(IP);
+            if (pingReply.Status != IPStatus.TimedOut)
+            {
+                GoodIP.Add(IP);
+            }
+        }
+        catch(Exception)
+        {
+            _errorCount++;
         }
     }
     IEnumerator PortScan2()
