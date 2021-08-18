@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -26,20 +25,20 @@ public class SplitRange : MonoBehaviour
                     if(i == count)
                     {
                         newIp = startIp[0] + "." + (startIp[1]+i) + "." + endIp[2] + "." + endIp[3];
-                        File.AppendAllText(numbers2[3] + ".txt", oldIp + "." + newIp + "\n");
+                        File.AppendAllText("IPRangeList.txt", oldIp + "." + newIp + "\n");
                         oldIp = startIp[0] + "." + (startIp[1]+i+1) + "." + 0 + "." + 0;
                     }
                     else
                     {
                         newIp = startIp[0] + "." + (startIp[1]+i) + "." + 255 + "." + 255;
-                        File.AppendAllText(numbers2[3] + ".txt", oldIp + "." + newIp + "\n");
+                        File.AppendAllText("IPRangeList.txt", oldIp + "." + newIp + "\n");
                         oldIp = startIp[0] + "." + (startIp[1]+i+1) + "." + 0 + "." + 0;
                     }
                 }
             }
             else
             {
-                File.AppendAllText(numbers2[3] + ".txt", IPAddress.Parse(numbers2[0]).ToString() + "." + IPAddress.Parse(numbers2[1]).ToString() + "\n");
+                File.AppendAllText("IPRangeList.txt", IPAddress.Parse(numbers2[0]).ToString() + "." + IPAddress.Parse(numbers2[1]).ToString() + "\n");
             }            
         }
     }
