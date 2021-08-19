@@ -23,14 +23,10 @@ public class PortScanning : MonoBehaviour
     bool checkInternet = true;
     public Material _internet;
     List<int> PortList = new List<int>();
-    Socket socket;
-    System.Net.NetworkInformation.Ping ping;
     int maxThreads = 100;
     void Start()
     {
         _maxThreads.text = maxThreads.ToString();
-        socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
-        ping = new System.Net.NetworkInformation.Ping();
         PortList.Add(37777);
         PortList.Add(8000);
         PortList.Add(34567);
@@ -106,6 +102,7 @@ public class PortScanning : MonoBehaviour
     {
         while(true)
         {
+            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
             PingReply pingReply = ping.Send("142.250.186.131");
             if (pingReply.Status == IPStatus.Success)
             {
@@ -193,7 +190,7 @@ public class PortScanning : MonoBehaviour
     {
         try
         {
-            IPList.RemoveAt(0);
+            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
             PingReply pingReply = ping.Send(IP);
             if (pingReply.Status != IPStatus.TimedOut)
             {
@@ -208,6 +205,7 @@ public class PortScanning : MonoBehaviour
     {
         try
         {
+            Socket socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
             socket.Connect(IP, port);
             File.Create($"IP" + port + "\\" + IP);
             PortCount++;
