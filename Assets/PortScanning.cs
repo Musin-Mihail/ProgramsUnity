@@ -14,6 +14,7 @@ public class PortScanning : MonoBehaviour
     public Text _collectedAddresses;
     public Text _numberThreads;
     public Text _portsFound;
+    public Text _maxThreads;
     List<string> IPList = new List<string>();
     List<string> GoodIP = new List<string>();
     List<string> IPRangeList = new List<string>();
@@ -24,9 +25,10 @@ public class PortScanning : MonoBehaviour
     List<int> PortList = new List<int>();
     Socket socket;
     System.Net.NetworkInformation.Ping ping;
-    int maxThreads = 200;
+    int maxThreads = 100;
     void Start()
     {
+        _maxThreads.text = maxThreads.ToString();
         socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
         ping = new System.Net.NetworkInformation.Ping();
         PortList.Add(37777);
@@ -82,7 +84,7 @@ public class PortScanning : MonoBehaviour
                 }
                 else
                 {
-                    while(countThread < maxThreads)
+                    while(countThread < maxThreads && IPList.Count > 0)
                     {
                         string IP = IPList[0];
                         IPList.RemoveAt(0);
@@ -93,7 +95,7 @@ public class PortScanning : MonoBehaviour
                         });
                         _thread.Start();
                         StartCoroutine(stopThread(_thread, 10));
-                        yield return new WaitForSeconds(0.02f);
+                        yield return new WaitForSeconds(0.001f);
                     }
                 }
             }
@@ -219,5 +221,15 @@ public class PortScanning : MonoBehaviour
         yield return new WaitForSeconds(_second);
         _thread.Abort();
         countThread--;
+    }
+    public void Plus100Threads() 
+    {
+        maxThreads += 100;
+        _maxThreads.text = maxThreads.ToString();
+    }
+    public void Minus100Threads() 
+    {
+        maxThreads -= 100;
+        _maxThreads.text = maxThreads.ToString();
     }
 }
