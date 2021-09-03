@@ -14,7 +14,8 @@ public class PortScanning : MonoBehaviour
     public Text _collectedAddresses;
     public Text _numberThreads;
     public Text _portsFound;
-    public Text _maxThreads;
+    public Text _status;
+    public Text _statusInternet;
     List<string> IPList = new List<string>();
     List<string> GoodIP = new List<string>();
     List<string> IPRangeList = new List<string>();
@@ -26,7 +27,6 @@ public class PortScanning : MonoBehaviour
     int maxThreads = 100;
     void Start()
     {
-        _maxThreads.text = maxThreads.ToString();
         PortList.Add(37777);
         PortList.Add(8000);
         PortList.Add(34567);
@@ -56,6 +56,7 @@ public class PortScanning : MonoBehaviour
         {
             if(checkInternet)
             {
+                _status.text = "Статус: В работе";
                 if(GoodIP.Count > 0)
                 {
                     for (int i = 0; i < GoodIP.Count-1; i++)
@@ -91,9 +92,14 @@ public class PortScanning : MonoBehaviour
                         });
                         _thread.Start();
                         StartCoroutine(stopThread(_thread, 10));
-                        yield return new WaitForSeconds(0.001f);
+                        yield return new WaitForSeconds(0.01f);
                     }
                 }
+                _status.text = "Статус: Ожидание";
+            }
+            else
+            {
+                _status.text = "Статус: Нет интернета";
             }
             yield return new WaitForSeconds(5);
         }
@@ -102,15 +108,25 @@ public class PortScanning : MonoBehaviour
     {
         while(true)
         {
-            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
-            PingReply pingReply = ping.Send("142.250.186.131");
-            if (pingReply.Status == IPStatus.Success)
+            try
             {
-                _internet.color = Color.green;
-                checkInternet = true;
+                System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+                PingReply pingReply = ping.Send("91.109.200.200");
+                _statusInternet.text = pingReply.Status.ToString();
+                if (pingReply.Status == IPStatus.Success)
+                {
+                    _internet.color = Color.green;
+                    checkInternet = true;
+                }
+                else
+                {
+                    _internet.color = Color.red;
+                    checkInternet = false;
+                }
             }
-            else
+            catch(Exception)
             {
+                _statusInternet.text = "Ошибка соединения";
                 _internet.color = Color.red;
                 checkInternet = false;
             }
@@ -192,7 +208,8 @@ public class PortScanning : MonoBehaviour
         {
             System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
             PingReply pingReply = ping.Send(IP);
-            if (pingReply.Status != IPStatus.TimedOut)
+            var textPing = pingReply.Status.ToString();
+            if (pingReply.Status == IPStatus.Success)
             {
                 GoodIP.Add(IP);
             }
@@ -219,15 +236,5 @@ public class PortScanning : MonoBehaviour
         yield return new WaitForSeconds(_second);
         _thread.Abort();
         countThread--;
-    }
-    public void Plus100Threads() 
-    {
-        maxThreads += 100;
-        _maxThreads.text = maxThreads.ToString();
-    }
-    public void Minus100Threads() 
-    {
-        maxThreads -= 100;
-        _maxThreads.text = maxThreads.ToString();
     }
 }
