@@ -19,6 +19,9 @@ public class PortScanning : MonoBehaviour
     List<string> IPList = new List<string>();
     List<string> GoodIP = new List<string>();
     List<string> IPRangeList = new List<string>();
+    List<string> foundPort8000 = new List<string>();
+    List<string> foundPort34567 = new List<string>();
+    List<string> foundPort37777 = new List<string>();
     int countThread;
     int PortCount;
     bool checkInternet = true;
@@ -39,6 +42,7 @@ public class PortScanning : MonoBehaviour
         StartCoroutine(StartThread());
         StartCoroutine(WriteText());
         StartCoroutine(CheckInternet());
+        StartCoroutine(CheckList());
     }
     IEnumerator WriteText()
     {
@@ -71,7 +75,7 @@ public class PortScanning : MonoBehaviour
                                 PortScan(IP, port);
                             });
                             _thread.Start();
-                            StartCoroutine(stopThread(_thread, 10));
+                            StartCoroutine(stopThread(_thread, 2));
                         }
                     }
                 }
@@ -224,7 +228,19 @@ public class PortScanning : MonoBehaviour
         {
             Socket socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
             socket.Connect(IP, port);
-            File.Create($"IP" + port + "\\" + IP);
+            // File.Create($"IP" + port + "\\" + IP);
+            if(port == 8000)
+            {
+                foundPort8000.Add(IP);
+            }
+            else if(port == 37777)
+            {
+                foundPort37777.Add(IP);
+            }
+            else if(port == 34567)
+            {
+                foundPort34567.Add(IP);
+            }
             PortCount++;
         }
         catch (Exception)
@@ -236,5 +252,27 @@ public class PortScanning : MonoBehaviour
         yield return new WaitForSeconds(_second);
         _thread.Abort();
         countThread--;
+    }
+    IEnumerator CheckList()
+    {
+        while (true)
+        {
+            if(foundPort8000.Count > 0)
+            {
+                File.AppendAllLines("Port_8000.txt",foundPort8000);
+                foundPort8000.Clear();
+            }
+            if(foundPort37777.Count > 0)
+            {
+                File.AppendAllLines("Port_37777.txt",foundPort37777);
+                foundPort37777.Clear();
+            }
+            if(foundPort34567.Count > 0)
+            {
+                File.AppendAllLines("Port_34567.txt",foundPort34567);
+                foundPort34567.Clear();
+            }
+            yield return new WaitForSeconds(5);
+        }
     }
 }
