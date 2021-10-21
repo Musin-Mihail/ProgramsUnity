@@ -28,8 +28,13 @@ public class PortScanning : MonoBehaviour
     public Material _internet;
     List<int> PortList = new List<int>();
     int maxThreads = 100;
+    System.Net.NetworkInformation.Ping ping;
+    PingReply pingReply;
+    Socket socket;
     void Start()
     {
+        ping = new System.Net.NetworkInformation.Ping();
+        socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
         PortList.Add(37777);
         PortList.Add(8000);
         PortList.Add(34567);
@@ -63,6 +68,7 @@ public class PortScanning : MonoBehaviour
                 _status.text = "Статус: В работе";
                 if(GoodIP.Count > 0)
                 {
+                    _status.text = "Статус: Проверка портов";
                     for (int i = 0; i < GoodIP.Count-1; i++)
                     {
                         string IP = GoodIP[i];
@@ -75,16 +81,19 @@ public class PortScanning : MonoBehaviour
                                 PortScan(IP, port);
                             });
                             _thread.Start();
-                            StartCoroutine(stopThread(_thread, 2));
+                            StartCoroutine(stopThread(_thread, 10));
+                            yield return new WaitForSeconds(0.1f);
                         }
                     }
                 }
                 if(IPList.Count <= 0)
                 {
+                    _status.text = "Статус: Обновление адресов";
                     RangeIP();
                 }
                 else
                 {
+                    _status.text = "Статус: Запуск потоков";
                     while(countThread < maxThreads && IPList.Count > 0)
                     {
                         string IP = IPList[0];
@@ -95,8 +104,8 @@ public class PortScanning : MonoBehaviour
                             Ping(IP);
                         });
                         _thread.Start();
-                        StartCoroutine(stopThread(_thread, 10));
-                        yield return new WaitForSeconds(0.01f);
+                        StartCoroutine(stopThread(_thread, 2));
+                        yield return new WaitForSeconds(0.02f);
                     }
                 }
                 _status.text = "Статус: Ожидание";
@@ -114,8 +123,7 @@ public class PortScanning : MonoBehaviour
         {
             try
             {
-                System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
-                PingReply pingReply = ping.Send("91.109.200.200");
+                pingReply = ping.Send("91.109.200.200");
                 _statusInternet.text = pingReply.Status.ToString();
                 if (pingReply.Status == IPStatus.Success)
                 {
@@ -210,8 +218,7 @@ public class PortScanning : MonoBehaviour
     {
         try
         {
-            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
-            PingReply pingReply = ping.Send(IP);
+            pingReply = ping.Send(IP);
             var textPing = pingReply.Status.ToString();
             if (pingReply.Status == IPStatus.Success)
             {
@@ -226,9 +233,7 @@ public class PortScanning : MonoBehaviour
     {
         try
         {
-            Socket socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
             socket.Connect(IP, port);
-            // File.Create($"IP" + port + "\\" + IP);
             if(port == 8000)
             {
                 foundPort8000.Add(IP);
