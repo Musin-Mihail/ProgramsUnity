@@ -14,6 +14,7 @@ public class PortScanning : MonoBehaviour
     public Text _collectedAddresses;
     public Text _numberThreads;
     public Text _portsFound;
+    public Text _goodIP;
     public Text _status;
     public Text _statusInternet;
     List<string> IPList = new List<string>();
@@ -56,6 +57,7 @@ public class PortScanning : MonoBehaviour
             _collectedAddresses.text = IPList.Count.ToString();
             _portsFound.text = PortCount.ToString();
             _numberThreads.text = countThread.ToString();
+            _goodIP.text = GoodIP.Count.ToString();
             yield return new WaitForSeconds(1);
         }
     }
@@ -69,10 +71,10 @@ public class PortScanning : MonoBehaviour
                 if(GoodIP.Count > 0)
                 {
                     _status.text = "Статус: Проверка портов";
-                    for (int i = 0; i < GoodIP.Count-1; i++)
+                    while (GoodIP.Count > 0 && checkInternet)
                     {
-                        string IP = GoodIP[i];
-                        GoodIP.RemoveAt(i);
+                        string IP = GoodIP[0];
+                        GoodIP.RemoveAt(0);
                         foreach (var port in PortList)
                         {
                             countThread++;
@@ -94,7 +96,7 @@ public class PortScanning : MonoBehaviour
                 else
                 {
                     _status.text = "Статус: Запуск потоков";
-                    while(countThread < maxThreads && IPList.Count > 0)
+                    while(countThread < maxThreads && IPList.Count > 0 && checkInternet)
                     {
                         string IP = IPList[0];
                         IPList.RemoveAt(0);
