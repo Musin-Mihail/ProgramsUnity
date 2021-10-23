@@ -31,11 +31,9 @@ public class PortScanning : MonoBehaviour
     int maxThreads = 100;
     System.Net.NetworkInformation.Ping ping;
     PingReply pingReply;
-    Socket socket;
     void Start()
     {
         ping = new System.Net.NetworkInformation.Ping();
-        socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
         PortList.Add(37777);
         PortList.Add(8000);
         PortList.Add(34567);
@@ -235,6 +233,7 @@ public class PortScanning : MonoBehaviour
     {
         try
         {
+            Socket socket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
             socket.Connect(IP, port);
             if(port == 8000)
             {
